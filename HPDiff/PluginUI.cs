@@ -143,7 +143,7 @@ namespace HPDiff
 			if( mConfiguration.mLockGaugeWindow ) windowFlags |= ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize;
 			if( mConfiguration.mGaugeClickthrough ) windowFlags |= ImGuiWindowFlags.NoMouseInputs;
 
-			ImGui.SetNextWindowSize( new( 600, 100 ), ImGuiCond.FirstUseEver );
+			ImGui.SetNextWindowSize( new Vector2( 600, 64 ) * ImGui.GetIO().FontGlobalScale, ImGuiCond.FirstUseEver );
 			if( ImGui.Begin( "###HPDiff Gauge Window", windowFlags ) )
 			{
 				Vector2 gaugeBase = ImGui.GetWindowPos() + ImGui.GetWindowContentRegionMin();

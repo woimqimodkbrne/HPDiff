@@ -44,7 +44,7 @@ namespace HPDiff
 					mEnemy2Name = "Hraesvelgr",
 					mLeftColor = new( 163f / 255f, 73f / 255f, 164f / 255f, 1f ),
 					mRightColor = new( 153f / 255f, 217f / 255f, 234f / 255f, 1f ),
-					mGaugeHalfRange_Pct = 10f,
+					mGaugeHalfRange_Pct = 15f,
 					mDiffThreshold_Pct = 3f,
 				} );
 			}
