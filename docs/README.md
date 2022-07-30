@@ -1,6 +1,8 @@
 # HP Difference Gauge
 
-Configurable bar gauge for HP difference between two enemies.  Useful for Hand of Pain-style mechanics, or simultaneous enrages if you don't have functional eyes.  Open the config window to see a sample gauge and move/size it.  Includes a single default gauge config for DSR phase 6.
+This is a plugin for [XIVLauncher/Dalamud](https://github.com/goatcorp/FFXIVQuickLauncher) that shows a configurable bar gauge of HP difference between two enemies.  Useful for Hand of Pain-style mechanics, or simultaneous enrages if you don't have functional eyes.  Open the config window to see a sample gauge and move/size it.  Includes a single default gauge config for DSR phase 6.
+
+![Plugin Screenshot](/docs/Images/image1.png)
 
 This is a quick and dirty implementation, and has the following imitations:
 
