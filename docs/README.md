@@ -5,7 +5,7 @@ This is a plugin for [XIVLauncher/Dalamud](https://github.com/goatcorp/FFXIVQuic
 
 ![Plugin Screenshot](/docs/Images/image1.png)
 
-This is a quick and dirty implementation, and has the following imitations:
+This is a quick and dirty implementation, and has the following limitations:
 
 - Only works when both enemies are in your aggro list (the gauge won't show when you or one of the enemies are dead).  It's too much work to sort through identically-named actors to bother changing this.
 - You have to find the TerritoryType of the instance with the enemies to set it up.  Look in the Dalamud data window, debug windows for other plugins, the sheets, etc.  May add zone dropdown at some point.
