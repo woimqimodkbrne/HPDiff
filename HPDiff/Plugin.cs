@@ -14,9 +14,8 @@ using Dalamud.Plugin;
 
 namespace HPDiff
 {
-	public class Plugin : IDalamudPlugin
+	public sealed class Plugin : IDalamudPlugin
 	{
-		//	Initialization
 		public Plugin(
 			DalamudPluginInterface pluginInterface,
 			Framework framework,
@@ -36,17 +35,8 @@ namespace HPDiff
 			if( mConfiguration == null )
 			{
 				mConfiguration = new Configuration();
-				mConfiguration.DiffGaugeConfigs.Add( new()
-				{
-					mName = "DSR - Phase 6",
-					mTerritoryType = 968,
-					mEnemy1Name = "Nidhogg",
-					mEnemy2Name = "Hraesvelgr",
-					mLeftColor = new( 163f / 255f, 73f / 255f, 164f / 255f, 1f ),
-					mRightColor = new( 153f / 255f, 217f / 255f, 234f / 255f, 1f ),
-					mGaugeHalfRange_Pct = 15f,
-					mDiffThreshold_Pct = 3f,
-				} );
+				mConfiguration.DiffGaugeConfigs.Add( new( GaugeConfigPresets.DSR_Phase6 ) );
+				mConfiguration.DiffGaugeConfigs.Add( new( GaugeConfigPresets.TEA_Phase1 ) );
 			}
 			mConfiguration.Initialize( mPluginInterface );
 
@@ -59,15 +49,11 @@ namespace HPDiff
 			mPluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 			mUI.Initialize();
 
-			//	We need to disable automatic hiding, because we actually turn off our game UI nodes in the draw functions as-appropriate, so we can't skip the draw functions.
-			mPluginInterface.UiBuilder.DisableAutomaticUiHide = true;
-
 			//	Event Subscription
 			mPluginInterface.LanguageChanged += OnLanguageChanged;
 			mFramework.Update += OnGameFrameworkUpdate;
 		}
 
-		//	Cleanup
 		public void Dispose()
 		{
 			mFramework.Update -= OnGameFrameworkUpdate;
@@ -78,9 +64,8 @@ namespace HPDiff
 			mUI.Dispose();
 		}
 
-		protected void OnLanguageChanged( string langCode )
+		private void OnLanguageChanged( string langCode )
 		{
-			//***** TODO *****
 			var allowedLang = new List<string>{ /*"de", "ja", "fr", "it", "es"*/ };
 
 			PluginLog.Information( "Trying to set up Loc for culture {0}", langCode );
@@ -105,8 +90,7 @@ namespace HPDiff
 			} );
 		}
 
-		//	Text Commands
-		protected void ProcessTextCommand( string command, string args )
+		private void ProcessTextCommand( string command, string args )
 		{
 			if( command == mTextCommandName ) mUI.mSettingsWindowVisible = true;
 		}
@@ -114,21 +98,25 @@ namespace HPDiff
 		public void OnGameFrameworkUpdate( Framework framework )
 		{
 			GaugeDrawData.mShouldDraw = false;
-			for( int i = 0; i < mConfiguration.DiffGaugeConfigs.Count; ++i )
+			if( mClientState.TerritoryType == 0 ) return;
+
+			foreach( var config in mConfiguration.DiffGaugeConfigs )
 			{
-				if( mClientState.TerritoryType != 0 && mConfiguration.DiffGaugeConfigs[i]?.mTerritoryType == mClientState.TerritoryType )
+				if( config != null &&
+					config.mEnabled &&
+					config.mTerritoryType == mClientState.TerritoryType )
 				{
-					var enemy1 = GetEnemyForName( mConfiguration.DiffGaugeConfigs[i].mEnemy1Name ) as BattleChara;
-					var enemy2 = GetEnemyForName( mConfiguration.DiffGaugeConfigs[i].mEnemy2Name ) as BattleChara;
+					var enemy1 = GetEnemyForName( config.mEnemy1Name ) as BattleChara;
+					var enemy2 = GetEnemyForName( config.mEnemy2Name ) as BattleChara;
 					if( enemy1 != null && enemy2 != null )
 					{
 						GaugeDrawData.mShouldDraw = true;
-						GaugeDrawData.mEnemy1Name = mConfiguration.DiffGaugeConfigs[i].mEnemy1Name;
-						GaugeDrawData.mEnemy2Name = mConfiguration.DiffGaugeConfigs[i].mEnemy2Name;
-						GaugeDrawData.mLeftColor = mConfiguration.DiffGaugeConfigs[i].mLeftColor;
-						GaugeDrawData.mRightColor = mConfiguration.DiffGaugeConfigs[i].mRightColor;
-						GaugeDrawData.mGaugeHalfRange_Pct = mConfiguration.DiffGaugeConfigs[i].mGaugeHalfRange_Pct;
-						GaugeDrawData.mDiffThreshold_Pct = mConfiguration.DiffGaugeConfigs[i].mDiffThreshold_Pct;
+						GaugeDrawData.mEnemy1Name = config.mEnemy1Name;
+						GaugeDrawData.mEnemy2Name = config.mEnemy2Name;
+						GaugeDrawData.mLeftColor = config.mLeftColor;
+						GaugeDrawData.mRightColor = config.mRightColor;
+						GaugeDrawData.mGaugeHalfRange_Pct = config.mGaugeHalfRange_Pct;
+						GaugeDrawData.mDiffThreshold_Pct = config.mDiffThreshold_Pct;
 						GaugeDrawData.mEnemy1HP_Pct = enemy1 != null ? (float)enemy1.CurrentHp / (float)enemy1.MaxHp * 100f : 0f;
 						GaugeDrawData.mEnemy2HP_Pct = enemy2 != null ? (float)enemy2.CurrentHp / (float)enemy2.MaxHp * 100f : 0f;
 						break;
@@ -165,26 +153,26 @@ namespace HPDiff
 			return null;
 		}
 
-		protected void DrawUI()
+		private void DrawUI()
 		{
 			mUI.Draw();
 		}
 
-		protected void DrawConfigUI()
+		private void DrawConfigUI()
 		{
 			mUI.mSettingsWindowVisible = true;
 		}
 
 		public string Name => "HP Difference Gauge";
-		protected const string mTextCommandName = "/phpdiff";
+		private const string mTextCommandName = "/phpdiff";
 
-		protected DalamudPluginInterface mPluginInterface;
-		protected Framework mFramework;
-		protected ClientState mClientState;
-		protected CommandManager mCommandManager;
-		protected ObjectTable mObjectTable;
-		protected Configuration mConfiguration;
-		protected PluginUI mUI;
+		private readonly DalamudPluginInterface mPluginInterface;
+		private readonly Framework mFramework;
+		private readonly ClientState mClientState;
+		private readonly CommandManager mCommandManager;
+		private readonly ObjectTable mObjectTable;
+		private readonly Configuration mConfiguration;
+		private readonly PluginUI mUI;
 
 		internal readonly DiffGaugeDrawData GaugeDrawData = new();
 	}

@@ -8,23 +8,19 @@ using ImGuiNET;
 
 namespace HPDiff
 {
-	// It is good to have this be disposable in general, in case you ever need it
-	// to do any cleanup
-	public class PluginUI : IDisposable
+	public sealed class PluginUI : IDisposable
 	{
-		//	Construction
 		public PluginUI( Plugin plugin, Configuration configuration )
 		{
 			mPlugin = plugin;
 			mConfiguration = configuration;
 		}
 
-		//	Destruction
-		unsafe public void Dispose()
+		public void Initialize()
 		{
 		}
 
-		public void Initialize()
+		public void Dispose()
 		{
 		}
 
@@ -35,7 +31,7 @@ namespace HPDiff
 			DrawGaugeWindow();
 		}
 
-		protected void DrawSettingsWindow()
+		private void DrawSettingsWindow()
 		{
 			if( !mSettingsWindowVisible ) return;
 
@@ -74,8 +70,9 @@ namespace HPDiff
 					var config = mConfiguration.DiffGaugeConfigs[i];
 					ImGui.PushID( $"GaugeConfig{i}." );
 
-					if( ImGui.CollapsingHeader( $"{config.mName}###Header" ) )
+					if( ImGui.CollapsingHeader( $"{config.mName} {(config.mEnabled ? "" : "(Disabled)")}###Header" ) )
 					{
+						ImGui.Checkbox( "Enabled", ref config.mEnabled );
 						ImGui.InputText( "Gauge Name", ref config.mName, 128 );
 						ImGui.InputInt( "TerritoryType", ref config.mTerritoryType );
 						ImGui.InputText( "Enemy 1 Name", ref config.mEnemy1Name, 64 );
@@ -125,12 +122,18 @@ namespace HPDiff
 				{
 					mConfiguration.Save();
 				}
+				ImGui.SameLine();
+				if( ImGui.Button( Loc.Localize( "Button: Save and Close", "Save and Close" ) + "###Save and Close Button" ) )
+				{
+					mConfiguration.Save();
+					mSettingsWindowVisible = false;
+				}
 			}
 
 			ImGui.End();
 		}
 
-		protected void DrawGaugeWindow()
+		private void DrawGaugeWindow()
 		{
 			var gaugeData = mPlugin.GaugeDrawData;
 			if( !gaugeData.mShouldDraw && mSettingsWindowVisible ) gaugeData = DiffGaugeDrawData.PreviewGaugeData;
@@ -193,12 +196,10 @@ namespace HPDiff
 			ImGui.End();
 		}
 
-		protected Plugin mPlugin;
-		protected Configuration mConfiguration;
+		private readonly Plugin mPlugin;
+		private readonly Configuration mConfiguration;
 
-		//	Need a real backing field on the following properties for use with ImGui.
 		internal bool mSettingsWindowVisible = false;
-		internal bool mDebugWindowVisible = false;
-		protected int mGaugeIndexWantToDelete = -1;
+		private int mGaugeIndexWantToDelete = -1;
 	}
 }
