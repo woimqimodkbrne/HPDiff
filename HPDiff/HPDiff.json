@@ -8,5 +8,6 @@
   "ImageUrls": [
     "https://github.com/PunishedPineapple/HPDiff/raw/main/docs/Images/image1.png"
   ],
-  "Tags": [ "UI" ]
+  "Tags": [ "UI" ],
+  "DalamudApiLevel": 7
 }
